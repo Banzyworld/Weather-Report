@@ -1,0 +1,132 @@
+Creating our weather reporting project
+Create a new Python repl called weather report.
+
+**Creating a WeatherStack Account and getting an API key
+We'll get weather data from the WeatherStack API. You'll need to sign up at weatherstack.com and follow the instructions to get your own access key. Choose the "free tier" option which is limited to 1000 calls per month.**
+
+After sign-up, you should see a page similar to the following containing the API access key.
+
+In the main.py file add the following code, but replace the string for API_KEY with your own.
+
+import requests
+
+# change the following line to use your own API key
+API_KEY = "baaf201731c0cbc4af2c519cb578f907"
+WS_URL = "http://api.weatherstack.com/current"
+
+city = "London"
+
+parameters = {'access_key': API_KEY, 'query': city}
+
+response = requests.get(WS_URL, parameters)
+js = response.json()
+print(js)
+print()
+
+This code asks WeatherStack for the current temperature in London, gets the JSON version of this and prints it out. You should see something similar to what is shown below.
+
+**Image 6:** *Getting the current weather in JSON format*
+
+WeatherStack returns a lot of data, but we are mainly interested in
+
+The location: To see if we found the correct London and not one of the 29 other places called London.
+The date: We'll record this when we save this data to a file.
+The current temperature: This is specified by default in Celsius, but can be customised if you prefer Fahrenheit.
+Add the following code below the existing code to extract these values into a format that's easier to read.
+
+temperature = js['current']['temperature']
+date = js['location']['localtime']
+city = js['location']['name']
+country = js['location']['country']
+
+print(f"The temperature in {city}, {country} on {date} is {temperature} degrees Celsius")
+
+
+If you run the code again, you'll see a more human-friendly output, as shown below.
+
+**Image 7:** *Seeing a human-readable summary of the data*
+
+This is great for getting the current weather, but now we want to extend it a bit to record weather historically.
+
+We'll create a file called cities.txt containing the list of cities we want to get weather data for. Our script will request the weather for each city, and save a new line with the weather and timestamp.
+
+Add the cities.txt file, as in the image below (of course, you can change which cities you would like to get weather info for).
+
+**Image 8:** *Creating the cities.txt file*
+
+Now remove the code we currently have in main.py and replace it with the following.
+
+import requests
+
+API_KEY = "baaf201731c0cbc4af2c519cb578f907"
+WS_URL = "http://api.weatherstack.com/current"
+
+cities = []
+with open("cities.txt") as f:
+    for line in f:
+        cities.append(line.strip())
+print(cities)
+
+for city in cities:
+    parameters = {'access_key': API_KEY, 'query': city}
+    response = requests.get(WS_URL, parameters)
+    js = response.json()
+
+    temperature = js['current']['temperature']
+    date = js['location']['localtime']
+
+    with open(f"{city}.txt", "w") as f:
+        f.write(f"{date},{temperature}\n")
+
+This is similar to the code we had before, but now we
+
+Read the city names from our cities.txt file and put each city into a Python list.
+Loop through the cities and get the weather data for each one.
+Create a new file with the same name as each city and write the date and temperature (separated by a comma) to each file.
+In our previous examples we explicitly closed files using f.close(). In this example, we instead open our files in a with block. This is a common idiom in Python and is usually how you will open files. You can read more about this in the files section of the Python docs.
+
+If you run this code, you'll see it creates one file for each city.
+
+**Image 9:** *The script creates one file for each city*
+
+If you open up one of the files, you'll see it contains the date and temperature that we fetched from WeatherStack.
+
+**Image 10:** *Example data recorded for London*
+
+If you run the script multiple times, each file will still only contain one line of data: that from the most recent run. This is because when we open a file with in "write" mode ("w"), it overwrites it with the new data. Because we want to create historical weather logs, we need to change the second last line to use "append" mode instead ("a").
+
+Change
+
+    with open(f"{city}.txt", "w") as f:
+
+to
+
+    with open(f"{city}.txt", "a") as f:
+
+and run the script again. If you open one of the city files again, you'll see it has a new line instead of the old data being overwritten. Newer data is appended to the end of the file. WeatherStack only updates its data every 5 minutes or so, so you might see exact duplicate lines if you run the script multiple times in quick succession.
+
+**Image 11:** *Adding new data to the end of each file*
+
+Exporting our weather data files
+If you run this script every day for a few months, you'll have a nice data set that could be useful in other contexts too. If you want to download all of the data from Replit, you can use the Download as zip functionality to export all of the files in a repl (including the code and data files).
+
+**Image 12:** *Downloading all of our files from Replit*
+
+Once you've downloaded the .zip file you can extract it in your local file system and find all of the data files which can now be opened with other programs as required.
+
+**Image 13:** *The created data files on our local file system*
+
+From the same menu, you can also choose upload file or upload folder to import files into your repl. For example, if you cleaned the files using external software and then wanted your repl to start appending new data to the cleaned versions, you could re-import them.
+
+Replit will warn you about overwriting your existing files if you haven't changed the names.
+
+**Image 14:** *Be careful about overwriting your precious data*
+
+Make it your own
+If you followed along, you'll already have your own version of the repl to extend. If not, start from ours. Fork it from the embed below.
+
+
+Where next?
+That's it for our weather reporting project. You learned how to work with files in Python and Replit, including different modes (read, write, or append) in which files can be opened.
+
+You also worked with an external library, requests, for fetching data over the internet. This module is not actually part of Python, and in the next article you'll learn more about how to manage external modules or dependencies.
