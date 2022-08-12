@@ -17,5 +17,5 @@ for city in cities:
     temperature = js['current']['temperature']
     date = js['location']['localtime']
 
-    with open(f"{city}.txt", "w") as f:
+    with open(f"{city}.txt", "a") as f:
         f.write(f"{date},{temperature}\n")
